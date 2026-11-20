@@ -448,6 +448,13 @@ body.on-page .vs-nav .nav-links.open,body.vs-misty .vs-nav .nav-links.open,.site
 .vs-nav .nav-links.open a:hover{padding-left:20px;background:rgba(255,255,255,.12)}
 .vs-nav .nav-links.open a.cur{color:#f0d9a0}
 @media(max-width:680px){.vs-nav .nav-links.open{padding:92px 26px 32px}.vs-nav .nav-links.open a{font-size:1.25rem}}
+
+/* mobile only: show the whole video frame (no side/top cropping) */
+@media(max-width:680px){
+.hero-video{height:calc(56.25vw + 58px);min-height:0;background:#000}
+.hero-video video{object-fit:contain;object-position:center bottom}
+.hero-video:after{height:58px}
+}
 </style>
 </head>
 <body>
