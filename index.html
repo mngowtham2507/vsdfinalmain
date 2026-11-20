@@ -455,6 +455,10 @@ body.on-page .vs-nav .nav-links.open,body.vs-misty .vs-nav .nav-links.open,.site
 .hero-video video{object-fit:contain;object-position:center bottom}
 .hero-video:after{height:58px}
 }
+
+/* never show a play button on the hero video */
+.hero-video video{pointer-events:none;-webkit-tap-highlight-color:transparent}
+.hero-video video::-webkit-media-controls,.hero-video video::-webkit-media-controls-start-playback-button,.hero-video video::-webkit-media-controls-overlay-play-button,.hero-video video::-webkit-media-controls-panel,.hero-video video::-webkit-media-controls-play-button,.hero-video video::-webkit-media-controls-enclosure{display:none!important;-webkit-appearance:none;opacity:0!important;visibility:hidden!important}
 </style>
 </head>
 <body>
@@ -466,7 +470,7 @@ body.on-page .vs-nav .nav-links.open,body.vs-misty .vs-nav .nav-links.open,.site
 </div></header>
 <main id="top">
 <section class="hero"><div class="container hero-grid">
-<div class="hero-video"><video src="hero2.mp4" autoplay muted loop playsinline preload="auto" aria-label="Family enjoying a luxury home"></video></div><div class="hero-copy reveal"><span class="eyebrow">Thoughtfully planned plotted communities · Bengaluru East</span><h1>Find your place.<br><em>Build your legacy.</em></h1><p>Discover residential plots shaped around better living, considered locations and a more confident property journey. Welcome to VS Developers.</p><a class="btn" href="#collection">Explore our projects <span>↗</span></a>
+<div class="hero-video"><video src="hero2.mp4" autoplay muted loop playsinline webkit-playsinline preload="auto" disablepictureinpicture disableremoteplayback controlslist="nodownload nofullscreen noremoteplayback" aria-label="Family enjoying a luxury home"></video></div><div class="hero-copy reveal"><span class="eyebrow">Thoughtfully planned plotted communities · Bengaluru East</span><h1>Find your place.<br><em>Build your legacy.</em></h1><p>Discover residential plots shaped around better living, considered locations and a more confident property journey. Welcome to VS Developers.</p><a class="btn" href="#collection">Explore our projects <span>↗</span></a>
 <div class="trust-row"><span>Family-run since 2014</span><span>Transparent guidance</span><span>Planned communities</span></div>
 <div class="searchbar"><div class="field"><label>I'm interested in</label><select id="heroProject"><option value="Any project">Any project</option><option>VS Heritage</option><option>VS Rosemeadows</option><option>VS Yogitha Garden</option><option>VS Indraprastha</option></select></div><div class="field"><label>My next step</label><select id="heroIntent"><option>Book a site visit</option><option>Request project details</option><option>Speak to an advisor</option></select></div><a class="btn" id="heroSearch" href="#contact">Let's connect</a></div>
 </div>
@@ -832,4 +836,4 @@ const check=()=>{const home=vid.offsetHeight>0;const hide=home&&vid.getBoundingC
 if(hide!==h.classList.contains('vs-hide')){h.classList.toggle('vs-hide',hide);if(hide&&links){links.classList.remove('open');if(tg){tg.setAttribute('aria-expanded','false');tg.textContent='\u2630'}}}};
 addEventListener('scroll',check,{passive:true});addEventListener('resize',check);addEventListener('hashchange',()=>setTimeout(check,60));check();})();
 </script>
-</body></html>
+<script>(()=>{const v=document.querySelector('.hero-video video');if(!v)return;v.muted=true;v.defaultMuted=true;v.loop=true;v.controls=false;v.removeAttribute('controls');v.setAttribute('playsinline','');const go=()=>{if(!v.paused&&!v.ended)return;v.muted=true;const p=v.play();if(p&&p.catch)p.catch(()=>{})};['loadedmetadata','loadeddata','canplay','pause','stalled','suspend','ended'].forEach(e=>v.addEventListener(e,go));document.addEventListener('visibilitychange',()=>{if(!document.hidden)go()});['touchstart','touchend','pointerdown','click','scroll','keydown'].forEach(e=>addEventListener(e,go,{passive:true}));addEventListener('pageshow',go);go();let n=0;const t=setInterval(()=>{go();if(++n>20||!v.paused)clearInterval(t)},500)})();</script></body></html>
