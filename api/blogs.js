@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     }
     if (req.method !== 'POST') return methodNotAllowed(res, ['GET', 'POST']);
     if (!requireSameOrigin(req, res)) return;
-    if (!authenticatedEmail(req)) return json(res, 401, { error: 'Sign in required' });
+    if (!authenticatedEmail(req)) return json(res, 401, { error: 'Sign in required.' });
 
     const input = validatePost(readJson(req));
     if (typeof input === 'string') return json(res, 400, { error: input });
@@ -38,6 +38,6 @@ export default async function handler(req, res) {
     return json(res, 201, { post });
   } catch (error) {
     console.error('Blog collection request failed:', error instanceof Error ? error.name : 'unknown error');
-    return json(res, 500, { error: 'Could not load or save blog posts' });
+    return json(res, 500, { error: 'Could not load or save blog posts.' });
   }
 }

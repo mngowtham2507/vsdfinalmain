@@ -18,7 +18,7 @@ async function request(url, options = {}) {
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.toLowerCase().includes('application/json')) {
     if (response.status === 404) {
-      throw new Error('Admin API is unavailable on this static preview. Run the site with Vercel Functions to sign in.');
+      throw new Error('Admin API is unavailable. Deploy this site with its serverless functions.');
     }
     throw new Error(`Admin API returned a non-JSON response (HTTP ${response.status}).`);
   }
@@ -26,7 +26,7 @@ async function request(url, options = {}) {
   try {
     data = await response.json();
   } catch {
-    throw new Error('Admin API returned invalid JSON. Check the Vercel function response.');
+    throw new Error('Admin API returned invalid JSON.');
   }
   if (!response.ok) throw new Error(data.error || 'Request failed');
   return data;

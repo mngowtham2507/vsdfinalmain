@@ -27,10 +27,10 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return methodNotAllowed(res, ['GET', 'POST', 'DELETE']);
     if (!requireSameOrigin(req, res)) return;
     if (!process.env.DATABASE_URL) {
-      return json(res, 503, { error: 'Admin setup is incomplete: configure DATABASE_URL in Vercel.' });
+      return json(res, 503, { error: 'Admin setup is incomplete: configure DATABASE_URL.' });
     }
     if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
-      return json(res, 503, { error: 'Admin setup is incomplete: configure a 32+ character SESSION_SECRET in Vercel.' });
+      return json(res, 503, { error: 'Admin setup is incomplete: configure a 32+ character SESSION_SECRET.' });
     }
 
     const sql = database();
@@ -53,11 +53,10 @@ export default async function handler(req, res) {
       FROM admin_users
       WHERE id = 1
     `;
-    if (!admin) return json(res, 503, { error: 'Admin account has not been initialized' });
+    if (!admin) return json(res, 503, { error: 'Admin account has not been initialized.' });
 
     const passwordValid = await verifyAdminPassword(input.password, admin.password_salt, admin.password_hash);
-    const valid = suppliedEmail === admin.email && passwordValid;
-    if (!valid) {
+    if (suppliedEmail !== admin.email || !passwordValid) {
       await sql`
         INSERT INTO admin_login_attempts (ip_hash, attempts, window_started_at)
         VALUES (${key}, 1, now())
@@ -71,7 +70,7 @@ export default async function handler(req, res) {
             ELSE admin_login_attempts.window_started_at
           END
       `;
-      return json(res, 401, { error: 'Email or password is incorrect' });
+      return json(res, 401, { error: 'Email or password is incorrect.' });
     }
 
     await sql`DELETE FROM admin_login_attempts WHERE ip_hash = ${key}`;
@@ -80,8 +79,8 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error('Admin authentication request failed:', error instanceof Error ? error.name : 'unknown error');
     if (error && typeof error === 'object' && error.code === '42P01') {
-      return json(res, 503, { error: 'Admin database tables are missing. Run migrations/001_blog.sql in Neon.' });
+      return json(res, 503, { error: 'Admin database tables are missing. Run migrations/001_blog.sql.' });
     }
-    return json(res, 503, { error: 'Could not access Neon. Check DATABASE_URL and the deployment logs.' });
+    return json(res, 503, { error: 'Could not access the database. Check DATABASE_URL and deployment logs.' });
   }
 }

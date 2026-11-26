@@ -9,9 +9,6 @@ async function main() {
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw new Error('ADMIN_EMAIL is not configured correctly');
   }
-  if (typeof password !== 'string' || password.length < 16 || password.length > 1024) {
-    throw new Error('ADMIN_PASSWORD must contain 16–1024 characters');
-  }
 
   const { salt, hash } = await hashAdminPassword(password);
   const sql = neon(connectionString);
@@ -27,7 +24,7 @@ async function main() {
   console.log('Admin account initialized. The password is stored as a salted hash.');
 }
 
-main().catch(() => {
-  console.error('Admin bootstrap failed. Check the Neon connection, migration, and credential requirements.');
+main().catch((error) => {
+  console.error('Admin bootstrap failed:', error instanceof Error ? error.message : 'unknown error');
   process.exitCode = 1;
 });

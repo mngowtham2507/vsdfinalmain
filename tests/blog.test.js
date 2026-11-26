@@ -10,6 +10,8 @@ import {
   verifyAdminPassword
 } from '../lib/server.js';
 import authHandler from '../api/auth.js';
+import blogCollectionHandler from '../api/blogs.js';
+import blogPostHandler from '../api/blogs/[slug].js';
 
 const validPost = {
   title: 'A helpful article',
@@ -49,6 +51,28 @@ test('rejects missing and cross-origin mutation requests', () => {
   assert.equal(JSON.parse(response.body).error, 'Request origin could not be verified');
 });
 
+test('requires an authenticated session for creating, editing, and deleting posts', async () => {
+  const response = {
+    statusCode: 0,
+    headers: {},
+    status(code) { this.statusCode = code; return this; },
+    setHeader(name, value) { this.headers[name] = value; },
+    end(value) { this.body = value; }
+  };
+  const headers = { origin: 'https://site.example', host: 'site.example' };
+
+  await blogCollectionHandler({ method: 'POST', headers, body: validPost }, response);
+  assert.equal(response.statusCode, 401);
+  assert.equal(JSON.parse(response.body).error, 'Sign in required.');
+
+  for (const method of ['PATCH', 'DELETE']) {
+    response.statusCode = 0;
+    await blogPostHandler({ method, headers, query: { slug: 'test-post' } }, response);
+    assert.equal(response.statusCode, 401);
+    assert.equal(JSON.parse(response.body).error, 'Sign in required.');
+  }
+});
+
 test('reports missing Neon configuration without attempting a database connection', async () => {
   const previousDatabaseUrl = process.env.DATABASE_URL;
   const previousSessionSecret = process.env.SESSION_SECRET;
@@ -79,7 +103,6 @@ test('reports missing Neon configuration without attempting a database connectio
 
 test('accepts a signed admin session and rejects a tampered cookie', () => {
   process.env.SESSION_SECRET = 'test-secret-with-more-than-thirty-two-characters';
-  process.env.ADMIN_EMAIL = 'admin@example.com';
   const response = { setHeader(name, value) { this[name] = value; } };
   setSessionCookie(response, 'admin@example.com');
   const cookie = response['Set-Cookie'].split(';')[0];
@@ -89,7 +112,7 @@ test('accepts a signed admin session and rejects a tampered cookie', () => {
   assert.equal(authenticatedEmail({ headers: { cookie: tampered } }), null);
 });
 
-test('stores admin passwords as salted hashes and verifies the password', async () => {
+test('stores admin passwords as salted hashes and enforces a strong password', async () => {
   const password = 'a-long-test-password-value';
   const stored = await hashAdminPassword(password);
   assert.notEqual(stored.hash, password);

@@ -12,7 +12,7 @@ function element(tag, text, className) {
 function renderList() {
   list.replaceChildren();
   if (!posts.length) {
-    list.append(element('p', 'No articles are available yet.', 'muted'));
+    list.append(element('p', 'No new articles have been published yet.', 'muted'));
     return;
   }
   const cards = element('div', null, 'cards');
@@ -26,8 +26,7 @@ function renderList() {
       image.loading = 'lazy';
       media.append(image);
     }
-    const counter = element('span', `${post.read_minutes} MIN READ`, 'counter');
-    media.append(counter);
+    media.append(element('span', `${post.read_minutes} MIN READ`, 'counter'));
     const body = element('div', null, 'card-body');
     body.append(
       element('span', post.category, 'eyebrow'),
@@ -53,19 +52,18 @@ function renderArticle() {
     article.append(element('p', 'This article could not be found.', 'muted'));
     return;
   }
-  const category = element('span', post.category, 'eyebrow');
-  const title = element('h1', post.title);
-  const meta = element('p', `${post.read_minutes} min read`, 'doc-meta');
-  document.title = `${post.title} | VS Developers`;
+  article.append(
+    element('span', post.category, 'eyebrow'),
+    element('h1', post.title),
+    element('p', `${post.read_minutes} min read`, 'doc-meta')
+  );
   if (post.image_url) {
     const imageWrap = element('div', null, 'article-img');
     const image = element('img');
     image.src = post.image_url;
     image.alt = post.title;
     imageWrap.append(image);
-    article.append(category, title, meta, imageWrap);
-  } else {
-    article.append(category, title, meta);
+    article.append(imageWrap);
   }
   const content = element('div', post.body, 'blog-content');
   content.style.whiteSpace = 'pre-line';
@@ -76,21 +74,29 @@ function renderArticle() {
   contactLink.href = '#contact';
   contact.append(contactLink);
   article.append(contact);
+  document.title = `${post.title} | VS Developers`;
 }
 
 async function loadBlog() {
   try {
     const response = await fetch('/api/blogs');
-    if (!response.ok) throw new Error('Could not load articles.');
+    if (!response.ok) throw new Error(`Blog request failed (HTTP ${response.status}).`);
     const data = await response.json();
+    if (!Array.isArray(data.posts)) throw new Error('Blog service returned invalid data.');
     posts = data.posts;
     renderList();
     renderArticle();
-  } catch {
-    list.replaceChildren(element('p', 'Articles are temporarily unavailable. Please try again later.', 'muted'));
-    renderArticle();
+  } catch (error) {
+    list.replaceChildren(element('p', 'Published articles are temporarily unavailable. Please try again later.', 'muted'));
+    if (location.hash.startsWith('#blog-post:')) {
+      article.replaceChildren(element('p', 'This article is temporarily unavailable.', 'muted'));
+    }
+    console.error('Could not load published blog posts:', error);
   }
 }
 
-addEventListener('hashchange', renderArticle);
+addEventListener('hashchange', () => {
+  renderArticle();
+  if (location.hash === '#blog') loadBlog();
+});
 loadBlog();

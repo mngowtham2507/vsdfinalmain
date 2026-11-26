@@ -4,19 +4,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#102b22">
   <title>Admin Blog | VS Developers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root{font-family:Arial,sans-serif;color:#18251f;background:#f6f2e9;font-synthesis:none}
-    *{box-sizing:border-box}body{margin:0}.wrap{width:min(960px,calc(100% - 32px));margin:48px auto}
+    :root{font-family:'DM Sans',Arial,sans-serif;color:#18251f;background:#f6f2e9;font-synthesis:none}
+    *{box-sizing:border-box}body{margin:0}
+    .wrap{width:min(960px,calc(100% - 32px));margin:40px auto}
     header{display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #ddd4c2;padding-bottom:18px}
-    h1,h2{font-family:Georgia,serif;font-weight:400}h1{font-size:clamp(2rem,5vw,3rem);margin:0}h2{font-size:1.6rem}
+    h1,h2{font-family:'Playfair Display',Georgia,serif;font-weight:400}h1{font-size:clamp(2rem,5vw,3rem);margin:0}h2{font-size:1.6rem}
     a{color:inherit}.panel{background:#fffdf8;border:1px solid #ddd4c2;padding:clamp(18px,4vw,32px);margin-top:24px}
     label{display:grid;gap:6px;font-size:.85rem;font-weight:700;margin:14px 0}
     input,textarea{width:100%;font:inherit;padding:12px;border:1px solid #cfc6b5;background:white}
-    textarea{min-height:180px;resize:vertical}button,.button{font:inherit;font-weight:700;border:1px solid #bd9b5b;padding:12px 18px;background:#bd9b5b;color:#102b22;cursor:pointer;text-decoration:none}
+    input:focus,textarea:focus{outline:2px solid #bd9b5b;outline-offset:1px}
+    textarea{min-height:180px;resize:vertical}
+    button,.button{font:inherit;font-weight:700;border:1px solid #bd9b5b;padding:12px 18px;background:#bd9b5b;color:#102b22;cursor:pointer;text-decoration:none}
     button:hover,.button:hover{background:#102b22;color:white}.secondary{background:transparent;border-color:#102b22}
     .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.muted{color:#68756d;font-size:.9rem}
-    .status{min-height:1.4em;color:#9b3328}.posts{display:grid;gap:12px}.post{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px;border:1px solid #ddd4c2;background:#fff}
+    .status{min-height:1.4em;color:#9b3328}.posts{display:grid;gap:12px}
+    .post{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px;border:1px solid #ddd4c2;background:#fff}
     .post h3{margin:0 0 5px;font-size:1rem}.post p{margin:0;color:#68756d;font-size:.85rem}
     [hidden]{display:none!important}@media(max-width:600px){.post{align-items:flex-start;flex-direction:column}}
   </style>
@@ -24,22 +32,22 @@
 <body>
   <main class="wrap">
     <header>
-      <div><p class="muted">VS DEVELOPERS · CONTENT MANAGEMENT</p><h1>Admin blog</h1></div>
+      <div><p class="muted">VS DEVELOPERS · CONTENT MANAGEMENT</p><h1>Admin Blog</h1></div>
       <a class="button secondary" href="./index.html">View website</a>
     </header>
     <section class="panel" id="login-panel">
       <h2>Sign in</h2>
-      <p class="muted">Only the configured administrator email can sign in.</p>
+      <p class="muted">Sign in with the configured administrator account.</p>
       <form id="login-form">
         <label>Email<input name="email" type="email" autocomplete="username" required></label>
         <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
         <button type="submit">Sign in</button>
       </form>
-      <p class="status" id="login-status" role="status"></p>
+      <p class="status" id="login-status" role="status" aria-live="polite"></p>
     </section>
     <section class="panel" id="admin-panel" hidden>
       <div class="row"><h2 id="editor-title">Add a blog post</h2><button class="secondary" id="logout" type="button">Sign out</button></div>
-      <p class="status" id="editor-status" role="status"></p>
+      <p class="status" id="editor-status" role="status" aria-live="polite"></p>
       <form id="post-form">
         <label>Title<input name="title" maxlength="160" required></label>
         <label>Category<input name="category" maxlength="60" placeholder="Buying guide" required></label>
