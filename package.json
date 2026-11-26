@@ -1,0 +1,12 @@
+{
+  "name": "vs-developers-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "bootstrap-admin": "node --env-file=.env.local scripts/bootstrap-admin.js"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.2"
+  }
+}
