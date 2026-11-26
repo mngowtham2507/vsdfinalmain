@@ -26,6 +26,12 @@ export default async function handler(req, res) {
     }
     if (req.method !== 'POST') return methodNotAllowed(res, ['GET', 'POST', 'DELETE']);
     if (!requireSameOrigin(req, res)) return;
+    if (!process.env.DATABASE_URL) {
+      return json(res, 503, { error: 'Admin setup is incomplete: configure DATABASE_URL in Vercel.' });
+    }
+    if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32) {
+      return json(res, 503, { error: 'Admin setup is incomplete: configure a 32+ character SESSION_SECRET in Vercel.' });
+    }
 
     const sql = database();
     const key = loginKey(req);
@@ -73,6 +79,9 @@ export default async function handler(req, res) {
     return json(res, 200, { authenticated: true });
   } catch (error) {
     console.error('Admin authentication request failed:', error instanceof Error ? error.name : 'unknown error');
-    return json(res, 500, { error: 'Sign-in is temporarily unavailable' });
+    if (error && typeof error === 'object' && error.code === '42P01') {
+      return json(res, 503, { error: 'Admin database tables are missing. Run migrations/001_blog.sql in Neon.' });
+    }
+    return json(res, 503, { error: 'Could not access Neon. Check DATABASE_URL and the deployment logs.' });
   }
 }

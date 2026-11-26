@@ -9,6 +9,7 @@ import {
   validatePost,
   verifyAdminPassword
 } from '../lib/server.js';
+import authHandler from '../api/auth.js';
 
 const validPost = {
   title: 'A helpful article',
@@ -46,6 +47,34 @@ test('rejects missing and cross-origin mutation requests', () => {
   assert.equal(requireSameOrigin({ headers: {}, socket: {} }, response), false);
   assert.equal(response.statusCode, 403);
   assert.equal(JSON.parse(response.body).error, 'Request origin could not be verified');
+});
+
+test('reports missing Neon configuration without attempting a database connection', async () => {
+  const previousDatabaseUrl = process.env.DATABASE_URL;
+  const previousSessionSecret = process.env.SESSION_SECRET;
+  delete process.env.DATABASE_URL;
+  process.env.SESSION_SECRET = 'test-secret-with-more-than-thirty-two-characters';
+  const response = {
+    statusCode: 0,
+    headers: {},
+    status(code) { this.statusCode = code; return this; },
+    setHeader(name, value) { this.headers[name] = value; },
+    end(value) { this.body = value; }
+  };
+  try {
+    await authHandler({
+      method: 'POST',
+      headers: { origin: 'https://site.example', host: 'site.example' },
+      body: { email: 'admin@example.com', password: 'a-long-test-password-value' }
+    }, response);
+    assert.equal(response.statusCode, 503);
+    assert.match(JSON.parse(response.body).error, /DATABASE_URL/);
+  } finally {
+    if (previousDatabaseUrl === undefined) delete process.env.DATABASE_URL;
+    else process.env.DATABASE_URL = previousDatabaseUrl;
+    if (previousSessionSecret === undefined) delete process.env.SESSION_SECRET;
+    else process.env.SESSION_SECRET = previousSessionSecret;
+  }
 });
 
 test('accepts a signed admin session and rejects a tampered cookie', () => {
